@@ -7,8 +7,11 @@ import { AngularFireAuth } from '@angular/fire/auth';
   styleUrls: ['./bs-navbar.component.css']
 })
 export class BsNavbarComponent {
+  user: firebase.User;
 
-  constructor(private afAuth: AngularFireAuth) { }
+  constructor(private afAuth: AngularFireAuth) { 
+    afAuth.authState.subscribe(user => this.user = user);
+  }
 
   logout() {
     this.afAuth.auth.signOut();
