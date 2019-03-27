@@ -10,21 +10,32 @@
         type="text" class="form-control" placeholder="Search...">
 </p>
 
-<table class="table">
+<table class="table table-striped" [mfData]="filteredProducts" #mf="mfDataTable" [mfRowsOnPage]="10">
     <thead>
         <tr>
-            <th>Title</th>
-            <th>Price</th>
+            <th>
+                <mfDefaultSorter by="title">Title</mfDefaultSorter>
+            </th>
+            <th>
+                <mfDefaultSorter by="price">Price</mfDefaultSorter>
+            </th>                          
             <th></th>
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let p of filteredProducts">
-            <td>{{ p.title }}</td>
-            <td>{{ p.price }}</td>
+        <tr *ngFor="let item of mf.data">
+            <td>{{ item.title }}</td>
+            <td>{{ item.price | currency:'USD':true }}</td>
             <td>
-                <a [routerLink]="['/admin/products/', p.key]">Edit</a>
+                <a [routerLink]="['/admin/products/', item.key]">Edit</a>
             </td>
         </tr>
     </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="4">
+                <mfBootstrapPaginator [rowsOnPageSet]="[5,10,25]"></mfBootstrapPaginator>
+            </td>
+        </tr>
+    </tfoot> 
 </table>
