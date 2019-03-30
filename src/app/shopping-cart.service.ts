@@ -19,10 +19,12 @@ export class ShoppingCartService {
   }
 
   async getCart(): Promise<Observable<ShoppingCart>> {
-    let cartId = await this.getOrCreateCartId();
-   
-    return this.db.object<ShoppingCart>('/shopping-carts/' + cartId).valueChanges()
-      .pipe(map(x => new ShoppingCart(x.items)));
+    const cartId = await this.getOrCreateCartId();
+    return this.db.object<ShoppingCart>('/shopping-carts/' + cartId).snapshotChanges()
+      .pipe(map(x => {
+        let items = x.payload.exists ? (x.payload.val().items) : {};
+        return new ShoppingCart(items);
+      }));
   }
 
   private getItem(cardId: string, productId: string) {
@@ -41,20 +43,25 @@ export class ShoppingCartService {
   }
 
   async addToCart(product: Product) {
-    this.updateItemQuantity(product, 1);
+    this.updateItem(product, 1);
   }
 
   async removeFromCart(product: Product) {
-    this.updateItemQuantity(product, -1);
+    this.updateItem(product, -1);
   }
 
-  private async updateItemQuantity(product: Product, change: number) {
+  private async updateItem(product: Product, change: number) {
     let cardId = await this.getOrCreateCartId();
     let item$ = this.getItem(cardId, product.key);
 
     item$.snapshotChanges().pipe(take(1)).subscribe(item => {
       let data = item.payload.val();
-      item$.update({ product: product, quantity: (data) ? data['quantity'] + change : 1 });
+      item$.update({
+        title: product.title,
+        imageUrl: product.imageUrl,
+        price: product.price,
+        quantity: (data) ? data['quantity'] + change : 1
+      });
     });
   }
 }
