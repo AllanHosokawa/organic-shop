@@ -12,12 +12,6 @@ export class ShoppingCartService {
 
   constructor(private db: AngularFireDatabase) { }
 
-  private create() {
-    return this.db.list('/shopping-carts').push({
-      dateCreated: new Date().getTime()
-    });
-  }
-
   async getCart(): Promise<Observable<ShoppingCart>> {
     const cartId = await this.getOrCreateCartId();
     return this.db.object<ShoppingCart>('/shopping-carts/' + cartId).snapshotChanges()
@@ -25,6 +19,25 @@ export class ShoppingCartService {
         let items = x.payload.exists ? (x.payload.val().items) : {};
         return new ShoppingCart(items);
       }));
+  }
+
+  async addToCart(product: Product) {
+    this.updateItem(product, 1);
+  }
+
+  async removeFromCart(product: Product) {
+    this.updateItem(product, -1);
+  }
+
+  async clearCart() {
+    let cartId = await this.getOrCreateCartId();
+    this.db.object('/shopping-carts/' + cartId + '/items').remove();
+  }
+
+  private create() {
+    return this.db.list('/shopping-carts').push({
+      dateCreated: new Date().getTime()
+    });
   }
 
   private getItem(cardId: string, productId: string) {
@@ -40,14 +53,6 @@ export class ShoppingCartService {
     localStorage.setItem('cartId', result.key);
     
     return result.key;
-  }
-
-  async addToCart(product: Product) {
-    this.updateItem(product, 1);
-  }
-
-  async removeFromCart(product: Product) {
-    this.updateItem(product, -1);
   }
 
   private async updateItem(product: Product, change: number) {
