@@ -61,12 +61,17 @@ export class ShoppingCartService {
 
     item$.snapshotChanges().pipe(take(1)).subscribe(item => {
       let data = item.payload.val();
-      item$.update({
-        title: product.title,
-        imageUrl: product.imageUrl,
-        price: product.price,
-        quantity: (data) ? data['quantity'] + change : 1
-      });
+      let quantity = (data) ? data['quantity'] + change : 1;
+      
+      if(quantity === 0)
+        item$.remove();
+      else
+        item$.update({
+          title: product.title,
+          imageUrl: product.imageUrl,
+          price: product.price,
+          quantity: quantity
+        });
     });
   }
 }
