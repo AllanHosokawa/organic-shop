@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ProductService } from 'shared/services/product.service';
 import { ActivatedRoute } from '@angular/router';
 import { Product } from 'shared/models/product';
 import { switchMap } from 'rxjs/operators';
 import { ShoppingCartService } from 'shared/services/shopping-cart.service';
-import { Subscription, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ShoppingCart } from 'shared/models/shopping-cart';
 
 @Component({
